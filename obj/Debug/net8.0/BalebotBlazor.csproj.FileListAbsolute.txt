@@ -27,3 +27,4 @@ G:\baleBot\BalebotBlazor\obj\Debug\net8.0\refint\BalebotBlazor.dll
 G:\baleBot\BalebotBlazor\obj\Debug\net8.0\BalebotBlazor.pdb
 G:\baleBot\BalebotBlazor\obj\Debug\net8.0\BalebotBlazor.genruntimeconfig.cache
 G:\baleBot\BalebotBlazor\obj\Debug\net8.0\ref\BalebotBlazor.dll
+G:\baleBot\BalebotBlazor\obj\Debug\net8.0\BalebotBlazor.sourcelink.json
