@@ -1,0 +1,41 @@
+{
+  "Files": [
+    {
+      "Id": "G:\\baleBot\\BalebotBlazor\\obj\\Debug\\net8.0\\scopedcss\\projectbundle\\BalebotBlazor.bundle.scp.css",
+      "PackagePath": "staticwebassets\\BalebotBlazor.bundle.scp.css"
+    },
+    {
+      "Id": "G:\\baleBot\\BalebotBlazor\\wwwroot\\app.css",
+      "PackagePath": "staticwebassets\\app.css"
+    },
+    {
+      "Id": "G:\\baleBot\\BalebotBlazor\\wwwroot\\bootstrap\\bootstrap.min.css",
+      "PackagePath": "staticwebassets\\bootstrap\\bootstrap.min.css"
+    },
+    {
+      "Id": "G:\\baleBot\\BalebotBlazor\\wwwroot\\bootstrap\\bootstrap.min.css.map",
+      "PackagePath": "staticwebassets\\bootstrap\\bootstrap.min.css.map"
+    },
+    {
+      "Id": "G:\\baleBot\\BalebotBlazor\\wwwroot\\favicon.png",
+      "PackagePath": "staticwebassets\\favicon.png"
+    },
+    {
+      "Id": "obj\\Debug\\net8.0\\staticwebassets\\msbuild.BalebotBlazor.Microsoft.AspNetCore.StaticWebAssets.props",
+      "PackagePath": "build\\Microsoft.AspNetCore.StaticWebAssets.props"
+    },
+    {
+      "Id": "obj\\Debug\\net8.0\\staticwebassets\\msbuild.build.BalebotBlazor.props",
+      "PackagePath": "build\\BalebotBlazor.props"
+    },
+    {
+      "Id": "obj\\Debug\\net8.0\\staticwebassets\\msbuild.buildMultiTargeting.BalebotBlazor.props",
+      "PackagePath": "buildMultiTargeting\\BalebotBlazor.props"
+    },
+    {
+      "Id": "obj\\Debug\\net8.0\\staticwebassets\\msbuild.buildTransitive.BalebotBlazor.props",
+      "PackagePath": "buildTransitive\\BalebotBlazor.props"
+    }
+  ],
+  "ElementsToRemove": []
+}
