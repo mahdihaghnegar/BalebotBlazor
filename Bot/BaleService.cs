@@ -1,4 +1,6 @@
 
+using BaleLib;
+
 namespace BalebotBlazor.Bot;
 
 public record Response(bool Success, string Message);
@@ -28,6 +30,10 @@ public class BaleService : BackgroundService
     }
     async Task ExecuteBotAsync(CancellationToken stoppingToken)
     {
-        Console.WriteLine($"Host: {_HOST} - Token: {_apiToken} ");
+        BaleClient client = new BaleClient(_apiToken);
+        var res = await client.SetWebhookAsync(_HOST);
+        if (!res.Ok) return;
+
+
     }
 }

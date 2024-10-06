@@ -1,24 +1,28 @@
 {
   "Files": [
     {
-      "Id": "G:\\baleBot\\BalebotBlazor\\obj\\Debug\\net8.0\\scopedcss\\projectbundle\\BalebotBlazor.bundle.scp.css",
-      "PackagePath": "staticwebassets\\BalebotBlazor.bundle.scp.css"
+      "Id": "e:\\Bale\\BalebotBlazor\\obj\\Debug\\net8.0\\scopedcss\\projectbundle\\BalebotBlazor.bundle.scp.css",
+      "PackagePath": "staticwebassets\\BalebotBlazor.fauzl0ab47.bundle.scp.css"
     },
     {
-      "Id": "G:\\baleBot\\BalebotBlazor\\wwwroot\\app.css",
+      "Id": "e:\\Bale\\BalebotBlazor\\wwwroot\\app.css",
       "PackagePath": "staticwebassets\\app.css"
     },
     {
-      "Id": "G:\\baleBot\\BalebotBlazor\\wwwroot\\bootstrap\\bootstrap.min.css",
+      "Id": "e:\\Bale\\BalebotBlazor\\wwwroot\\bootstrap\\bootstrap.min.css",
       "PackagePath": "staticwebassets\\bootstrap\\bootstrap.min.css"
     },
     {
-      "Id": "G:\\baleBot\\BalebotBlazor\\wwwroot\\bootstrap\\bootstrap.min.css.map",
+      "Id": "e:\\Bale\\BalebotBlazor\\wwwroot\\bootstrap\\bootstrap.min.css.map",
       "PackagePath": "staticwebassets\\bootstrap\\bootstrap.min.css.map"
     },
     {
-      "Id": "G:\\baleBot\\BalebotBlazor\\wwwroot\\favicon.png",
+      "Id": "e:\\Bale\\BalebotBlazor\\wwwroot\\favicon.png",
       "PackagePath": "staticwebassets\\favicon.png"
+    },
+    {
+      "Id": "obj\\Debug\\net8.0\\staticwebassets\\msbuild.BalebotBlazor.Microsoft.AspNetCore.StaticWebAssetEndpoints.props",
+      "PackagePath": "build\\Microsoft.AspNetCore.StaticWebAssetEndpoints.props"
     },
     {
       "Id": "obj\\Debug\\net8.0\\staticwebassets\\msbuild.BalebotBlazor.Microsoft.AspNetCore.StaticWebAssets.props",
