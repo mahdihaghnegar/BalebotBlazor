@@ -1,5 +1,6 @@
 
 using BaleLib;
+using BaleLib.Models.Parameters;
 
 namespace BalebotBlazor.Bot;
 
@@ -30,10 +31,30 @@ public class BaleService : BackgroundService
     }
     async Task ExecuteBotAsync(CancellationToken stoppingToken)
     {
+        Console.WriteLine($"Host: {_HOST}\n Token: {_apiToken}");
+
         BaleClient client = new BaleClient(_apiToken);
+        client.DeleteWebHook();
         var res = await client.SetWebhookAsync(_HOST);
         if (!res.Ok) return;
 
+        while (true)
+        {
+            var Updates = await client.GetUpdatesAsync();
 
+            foreach (var u in Updates.Result)
+            {
+                if (u.Message.Text != "")
+                    await client.SendTextAsync(
+                        new TextMessage
+                        {
+                            ChatId = u.Message.Chat.Id,
+                            Text = $"سلام {u.Message.Chat.FirstName} شما گفتید:\n {u.Message.Text}"
+                        }
+
+                    );
+            }
+            await Task.Delay(5000);
+        }
     }
 }
