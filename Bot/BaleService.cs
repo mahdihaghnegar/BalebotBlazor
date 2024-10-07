@@ -1,20 +1,13 @@
 
 using BaleLib;
 using BaleLib.Models.Parameters;
-using Newtonsoft.Json.Linq;
-
 
 namespace BalebotBlazor.Bot;
-
-public record Response(bool Success, string Message);
 
 public class BaleService : BackgroundService
 {
     private readonly string _apiToken;
     private readonly string _HOST;
-
-    private string apiUrl;
-    private static readonly HttpClient client = new HttpClient();
     private static Dictionary<long, string> userStates = new Dictionary<long, string>();
     private static Dictionary<long, string> userPhones = new Dictionary<long, string>();
 
@@ -26,35 +19,11 @@ public class BaleService : BackgroundService
         this.Configuration = configuration;
         _apiToken = Configuration["BaleBot:ApiToken"];
         _HOST = Configuration["BaleBot:HOST"];
-        apiUrl = "https://tapi.bale.ai/bot" + _apiToken + "/";
-
     }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-
         await ExecuteBotAsync(stoppingToken);
-    }
-
-    private async Task<dynamic> GetUpdatesAsync(int? offset = null)
-    {
-        //https://tapi.bale.ai/bot1281856558:FF49UjcoVqjVQzjJkJYdM9w8KmqS5TS8DuG2GiQi/getUpdates
-
-        /*var response = await client.GetStringAsync(apiUrl + "getUpdates");
-        
-        return JsonConvert.DeserializeObject(response);*/
-        var url = $"https://tapi.bale.ai/bot{_apiToken}/getUpdates";
-        var parameters = offset.HasValue ? new Dictionary<string, string> { { "offset", offset.Value.ToString() } } : null;
-        var response = await client.GetAsync(url + (parameters != null ? $"?offset={parameters["offset"]}" : ""));
-
-        if (response.IsSuccessStatusCode)
-        {
-            var jsonResponse = await response.Content.ReadAsStringAsync();
-            var result = JObject.Parse(jsonResponse)["result"];
-            return result;//.ToList();
-        }
-
-        return new List<JToken>();
     }
     async Task ExecuteBotAsync(CancellationToken stoppingToken)
     {
@@ -69,16 +38,16 @@ public class BaleService : BackgroundService
         {
             try
             {
-                var Updates = await GetUpdatesAsync();// await client.GetUpdatesAsync();
-                if (Updates == null || Updates.Count == 0)
+                var Updates = await BaleMethods.GetUpdatesAsync(_apiToken, 1);// await client.GetUpdatesAsync();
+                if (Updates == null || !Updates.ok || Updates.result.Count == 0)
                 {
-                    await Task.Delay(5000);
+                    await Task.Delay(2000);
                     continue;
                 }
 
-                foreach (var u in Updates)
+                foreach (var u in Updates.result)
                 {
-                    if (u.message!.text != null)
+                    if (u.message != null)
                     {
                         ReplyKeyboardBuidler replyKeyboardBuidler = new ReplyKeyboardBuidler();
                         replyKeyboardBuidler.AddButton("شروع");
@@ -86,10 +55,28 @@ public class BaleService : BackgroundService
                             new TextMessage
                             {
                                 ChatId = u.message.chat.id,
-                                Text = $"سلام {u.Message.chat.firstName} شما گفتید:\n {u.message.text}",
+                                Text = $" {u.message.chat.first_name} شما گفتید:\n {u.message.text}",
                                 ReplyMarkup = replyKeyboardBuidler.Build(),
                             }
+                        );
 
+                        await client.SendTextAsync(
+                            new TextMessage
+                            {
+                                ChatId = 5684598897,//گروه جلسات
+                                Text = $" {u.message.chat.first_name} به ربات @bazshirazbot گفت:\n {u.message.text}",
+
+                            }
+                        );
+                    }
+                    else if (u.callback_query != null)
+                    {
+                        await client.SendTextAsync(
+                            new TextMessage
+                            {
+                                ChatId = u.callback_query.message.chat.id,
+                                Text = $" {u.callback_query.message.chat.first_name} \n شما روی کلید : {u.callback_query.data} زدید ",
+                            }
                         );
                     }
                 }
@@ -103,4 +90,5 @@ public class BaleService : BackgroundService
             }
         }
     }
+
 }
