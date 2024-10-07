@@ -65,3 +65,7 @@ e:\Bale\BalebotBlazor\bin\Debug\net8.0\BaleLib.dll
 e:\Bale\BalebotBlazor\bin\Debug\net8.0\Newtonsoft.Json.dll
 e:\Bale\BalebotBlazor\obj\Debug\net8.0\BalebotBlazor.csproj.AssemblyReference.cache
 e:\Bale\BalebotBlazor\obj\Debug\net8.0\BalebotB.3ED4E68D.Up2Date
+g:\baleBot\BalebotBlazor\bin\Debug\net8.0\BaleLib.dll
+g:\baleBot\BalebotBlazor\bin\Debug\net8.0\Newtonsoft.Json.dll
+g:\baleBot\BalebotBlazor\obj\Debug\net8.0\BalebotBlazor.csproj.AssemblyReference.cache
+G:\baleBot\BalebotBlazor\obj\Debug\net8.0\BalebotB.3ED4E68D.Up2Date

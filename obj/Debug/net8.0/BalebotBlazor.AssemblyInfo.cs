@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("BalebotBlazor")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+5b0c6fda4c4dae4d3fbfae4e9d96855e8f2f8eca")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+34e16aebb5fb9fce4e7c5b976f055d6c9ff06c18")]
 [assembly: System.Reflection.AssemblyProductAttribute("BalebotBlazor")]
 [assembly: System.Reflection.AssemblyTitleAttribute("BalebotBlazor")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
