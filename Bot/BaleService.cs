@@ -1,13 +1,13 @@
-
-using BaleLib;
-using BaleLib.Models.Parameters;
+/*using BaleLib;
+using BaleLib.Models.Parameters;*/
 
 namespace BalebotBlazor.Bot;
-
 public class BaleService : BackgroundService
 {
     private readonly string _apiToken;
     private readonly string _HOST;
+    private readonly string url;
+
     private static Dictionary<long, string> userStates = new Dictionary<long, string>();
     private static Dictionary<long, string> userPhones = new Dictionary<long, string>();
 
@@ -19,6 +19,7 @@ public class BaleService : BackgroundService
         this.Configuration = configuration;
         _apiToken = Configuration["BaleBot:ApiToken"];
         _HOST = Configuration["BaleBot:HOST"];
+        url = $"https://tapi.bale.ai/bot{_apiToken}/";
     }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -28,17 +29,37 @@ public class BaleService : BackgroundService
     async Task ExecuteBotAsync(CancellationToken stoppingToken)
     {
         Console.WriteLine($"Host: {_HOST}\n Token: {_apiToken}");
+        BaleMethods client = new BaleMethods(_apiToken);
+        //BaleClient oldclient = new BaleClient(_apiToken);
+        //oldclient.DeleteWebHook();
 
-        BaleClient client = new BaleClient(_apiToken);
-        client.DeleteWebHook();
-        var res = await client.SetWebhookAsync(_HOST);
-        if (!res.Ok) return;
+        var response = await client.DeleteWebHook();
+        if (response.Ok && response.Result)
+        {
+            Console.WriteLine("Webhook deleted successfully!");
+        }
+        else
+        {
+            Console.WriteLine("Failed to delete webhook.");
+            return;
+        }
+
+        response = await client.SetWebhookAsync(_HOST);
+        if (response.Ok && response.Result)
+        {
+            Console.WriteLine("Webhook set successfully!");
+        }
+        else
+        {
+            Console.WriteLine("Failed to set webhook.");
+            return;
+        }
 
         while (true)
         {
             try
             {
-                var Updates = await BaleMethods.GetUpdatesAsync(_apiToken, 1);// await client.GetUpdatesAsync();
+                var Updates = await client.GetUpdatesAsync();// await oldclient.GetUpdatesAsync();
                 if (Updates == null || !Updates.ok || Updates.result.Count == 0)
                 {
                     await Task.Delay(2000);
