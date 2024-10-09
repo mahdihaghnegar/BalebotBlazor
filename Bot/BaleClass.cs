@@ -121,6 +121,34 @@ public class BaleMethods
         // return await Post<VoidType>(message, url);
     }
 
+    public async Task<Response> GetChatMemberAsync(long chatId, long userId)
+    {
+        //myid=497949405
+        //bazit=1012519739
+        //groupid=5684598897
+
+        //var url = $"https://api.telegram.org/bot{_botToken}/getChatMember?chat_id={chatId}&user_id={userId}";
+        string url = baseUrl + $"getChatMember?chat_id={chatId}&user_id={userId}";
+        try
+        {//https://github.com/TelegramBots/Telegram.Bot/blob/26d1a31a0c19f99d9be9fde385261fcea3f7dafb/src/Telegram.Bot/Requests/Available%20methods/Manage%20Chat/Get%20Chat/GetChatMemberRequest.cs#L4
+         //https://tapi.bale.ai/1281856558:FF49UjcoVqjVQzjJkJYdM9w8KmqS5TS8DuG2GiQi/getChatMember?chat_id=5684598897&user_id=1012519739 
+            var response = await client.GetAsync(url);
+            response.EnsureSuccessStatusCode();
+
+            var responseBody = await response.Content.ReadAsStringAsync();
+            var result = JsonConvert.DeserializeObject<Response<RootChatMember>>(responseBody);
+
+            return result;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error getting chat member: {ex.Message}");
+            return new Response { Ok = false, Result = null };
+        }
+    }
+
+
+
     public static string Serialize(object obj)
     {
         JsonSerializerSettings settings = new JsonSerializerSettings
@@ -131,6 +159,9 @@ public class BaleMethods
     }
 }
 
+/// <summary>
+/// other classes
+/// </summary>
 public class TextMessage : BaseInput
 {
     public string Text { get; set; }
@@ -376,4 +407,42 @@ public class ResultSendMessage
     public int date { get; set; }
     public Chat chat { get; set; }
     public string text { get; set; }
+}
+
+public class RootChatMember
+{
+    public bool ok { get; set; }
+    public ResultChatMember result { get; set; }
+}
+
+public class ResultChatMember
+{
+    public string status { get; set; }
+    public User user { get; set; }
+    //public bool is_anonymous { get; set; }
+    public bool is_member { get; set; }
+    public bool can_send_messages { get; set; }
+    public bool can_send_media_messages { get; set; }
+    public bool can_send_audios { get; set; }
+    public bool can_send_documents { get; set; }
+    public bool can_send_photos { get; set; }
+    public bool can_send_videos { get; set; }
+    public bool can_send_video_notes { get; set; }
+    public bool can_send_voice_notes { get; set; }
+    public bool can_send_polls { get; set; }
+    public bool can_send_other_messages { get; set; }
+    public bool can_add_web_page_previews { get; set; }
+    public bool can_change_info { get; set; }
+    public bool can_invite_users { get; set; }
+    public bool can_pin_messages { get; set; }
+    public bool can_manage_topics { get; set; }
+    public int until_date { get; set; }
+}
+public class User
+{
+    public int id { get; set; }
+    public bool is_bot { get; set; }
+    public string first_name { get; set; }
+    public string last_name { get; set; }
+    public string username { get; set; }
 }

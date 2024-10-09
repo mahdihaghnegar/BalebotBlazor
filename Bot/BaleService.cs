@@ -55,6 +55,7 @@ public class BaleService : BackgroundService
             return;
         }
 
+        var groupChatId = 5684598897;//گروه جلسات
         while (true)
         {
             try
@@ -84,7 +85,7 @@ public class BaleService : BackgroundService
                         await client.SendTextAsync(
                             new TextMessage
                             {
-                                ChatId = 5684598897,//گروه جلسات
+                                ChatId = groupChatId,//گروه جلسات
                                 Text = $" {u.message.chat.first_name} به ربات @bazshirazbot گفت:\n {u.message.text}",
 
                             }
@@ -92,11 +93,16 @@ public class BaleService : BackgroundService
                     }
                     else if (u.callback_query != null)
                     {
+
+                        var res = await client.GetChatMemberAsync(groupChatId, u.callback_query.message.chat.id);
+                        string isMember = "شما عضو گروه ";
+                        isMember += res.Ok ? "هستید" : "نمی باشید";
+
                         await client.SendTextAsync(
                             new TextMessage
                             {
                                 ChatId = u.callback_query.message.chat.id,
-                                Text = $" {u.callback_query.message.chat.first_name} \n شما روی کلید : {u.callback_query.data} زدید ",
+                                Text = $"{isMember} \n {u.callback_query.message.chat.first_name} \n شما روی کلید : {u.callback_query.data} زدید ",
                             }
                         );
                     }
