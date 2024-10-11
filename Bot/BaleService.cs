@@ -112,9 +112,9 @@ public class BaleService : BackgroundService
                                     new TextMessage
                                     {
                                         ChatId = u.message.contact.user_id,
-                                        Text = $"Id: {u.message.contact.user_id} با نام {u.message.contact.first_name} به ربات @bazshirazbot شماره اش را داد:\n {u.message.contact.phone_number}",
+                                        Text = $"با تشکر شماره شما\n {u.message.contact.phone_number} \n می باشد",
                                     }
-                                );
+                           , "null");
 
             return;
         }

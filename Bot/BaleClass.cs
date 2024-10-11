@@ -125,14 +125,6 @@ public class BaleMethods
     {
         string url = baseUrl + "sendmessage";
 
-        /*var payload = new
-        {
-            message = message
-        };
-        var content = new StringContent(JsonConvert.SerializeObject(payload), Encoding.UTF8, "application/json");*/
-
-        // HttpContent content = ((message is HttpContent) ? ((HttpContent)message) : new StringContent(Serialize(message), Encoding.UTF8, "application/json"));
-
         var payload = new
         {
             chat_id = message.ChatId,
@@ -143,11 +135,12 @@ public class BaleMethods
                            {
                         new[]
                         {
+                            RequestContact=="null"?null:
                             new { text = RequestContact, request_contact = true }
                         }
                     },
                 resize_keyboard = true,
-                one_time_keyboard = true
+                one_time_keyboard = false
             }
         };
 
