@@ -98,13 +98,26 @@ public class BaleService : BackgroundService
     }
     async Task HandleMessage(Result u)
     {
+
         await client.SendTextAsync(
                                     new TextMessage
                                     {
                                         ChatId = logGroupChatId,//گروه جلسات
-                                        Text = $"Id: {u.message.chat.id} با نام {u.message.chat.first_name} به ربات @bazshirazbot گفت:\n {u.message.text}",
+                                        Text = $"Id: {u.message.chat.id} با نام {u.message.chat.first_name} به ربات @bazshirazbot گفت:\n {(u.message.contact != null ? u.message.contact.phone_number : u.message.text)}",
                                     }
                                 );
+        if (u.message.contact != null)
+        {
+            await client.SendTextAsync(
+                                    new TextMessage
+                                    {
+                                        ChatId = u.message.contact.user_id,
+                                        Text = $"Id: {u.message.contact.user_id} با نام {u.message.contact.first_name} به ربات @bazshirazbot شماره اش را داد:\n {u.message.contact.phone_number}",
+                                    }
+                                );
+
+            return;
+        }
 
         ReplyKeyboardBuidler replyKeyboardBuidler = new ReplyKeyboardBuidler();
         replyKeyboardBuidler.AddButton("ورود به ربات/بازو پیشکسوتان شیراز", EnterButton);
@@ -153,7 +166,7 @@ public class BaleService : BackgroundService
                {
                    ChatId = u.callback_query.message.chat.id,
                    Text = $"سلام {u.callback_query.message.chat.first_name}! \n لطفا برای احراز هویت شماره خود را با کلیک روی دکمه ارسال تماس در اختیار ما قرار دهید ",
-               }
+               }, "ارسال شماره تماس"
            );
         }
 

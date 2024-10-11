@@ -76,6 +76,7 @@ public class BaleMethods
     public async Task<Root> GetUpdatesAsync(int? offset = 1)// if zero repeat getting update 
     {
         //var url = $"https://tapi.bale.ai/bot{token}/getUpdates";
+        //https://tapi.bale.ai/bot1281856558:FF49UjcoVqjVQzjJkJYdM9w8KmqS5TS8DuG2GiQi/getUpdates
         string url = baseUrl + "getUpdates";
         var parameters = offset.HasValue ? new Dictionary<string, string> { { "offset", offset.Value.ToString() } } : null;
         var response = await client.GetAsync(url + (parameters != null ? $"?offset={parameters["offset"]}" : ""));
@@ -120,6 +121,61 @@ public class BaleMethods
         }
         // return await Post<VoidType>(message, url);
     }
+    public async Task<Response> SendTextAsync(TextMessage message, string RequestContact)
+    {
+        string url = baseUrl + "sendmessage";
+
+        /*var payload = new
+        {
+            message = message
+        };
+        var content = new StringContent(JsonConvert.SerializeObject(payload), Encoding.UTF8, "application/json");*/
+
+        // HttpContent content = ((message is HttpContent) ? ((HttpContent)message) : new StringContent(Serialize(message), Encoding.UTF8, "application/json"));
+
+        var payload = new
+        {
+            chat_id = message.ChatId,
+            text = message.Text,
+            reply_markup = new
+            {
+                keyboard = new[]
+                           {
+                        new[]
+                        {
+                            new { text = RequestContact, request_contact = true }
+                        }
+                    },
+                resize_keyboard = true,
+                one_time_keyboard = true
+            }
+        };
+
+        var content = new StringContent(
+            System.Text.Json.JsonSerializer.Serialize(payload),
+            Encoding.UTF8,
+            "application/json"
+        );
+
+
+        try
+        {
+            var response = await client.PostAsync(url, content);
+            response.EnsureSuccessStatusCode();
+
+            var responseBody = await response.Content.ReadAsStringAsync();
+            var result = JsonConvert.DeserializeObject<Response<RootSendMessage>>(responseBody);
+
+            return result;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error setting webhook: {ex.Message}");
+            return new Response<bool> { Ok = false, Result = false };
+        }
+        // return await Post<VoidType>(message, url);
+    }
+
 
     public async Task<Response> GetChatMemberAsync(long chatId, long userId)
     {
@@ -369,6 +425,7 @@ public class Message
     public int date { get; set; }
     public Chat chat { get; set; }
     public string text { get; set; }
+    public Contact contact { get; set; }
 }
 
 public class Photo
@@ -400,6 +457,12 @@ public class RootSendMessage
     public bool ok { get; set; }
     public List<ResultSendMessage> result { get; set; }
 }
+public class Contact
+{
+    public string phone_number { get; set; }
+    public string first_name { get; set; }
+    public int user_id { get; set; }
+}
 public class ResultSendMessage
 {
     public int message_id { get; set; }
@@ -407,6 +470,7 @@ public class ResultSendMessage
     public int date { get; set; }
     public Chat chat { get; set; }
     public string text { get; set; }
+
 }
 
 public class RootChatMember
