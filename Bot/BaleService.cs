@@ -15,8 +15,8 @@ public class BaleService : BackgroundService
     private readonly IConfiguration Configuration;
     public BaleService(IServiceScopeFactory scopeFactory, IConfiguration configuration)
     {
-        this.ScopeFactory = scopeFactory;
-        this.Configuration = configuration;
+        ScopeFactory = scopeFactory;
+        Configuration = configuration;
         _apiToken = Configuration["BaleBot:ApiToken"];
         _HOST = Configuration["BaleBot:HOST"];
         url = $"https://tapi.bale.ai/bot{_apiToken}/";
@@ -56,6 +56,7 @@ public class BaleService : BackgroundService
         }
 
         var groupChatId = 5684598897;//گروه جلسات
+        var channelId = 5760751221;//کانال 
         while (true)
         {
             try
@@ -72,7 +73,7 @@ public class BaleService : BackgroundService
                     if (u.message != null)
                     {
                         ReplyKeyboardBuidler replyKeyboardBuidler = new ReplyKeyboardBuidler();
-                        replyKeyboardBuidler.AddButton("شروع");
+                        replyKeyboardBuidler.AddButton("ورود به ربات/بازو پیشکسوتان شیراز", "enter");
                         await client.SendTextAsync(
                             new TextMessage
                             {
@@ -86,23 +87,34 @@ public class BaleService : BackgroundService
                             new TextMessage
                             {
                                 ChatId = groupChatId,//گروه جلسات
-                                Text = $" {u.message.chat.first_name} به ربات @bazshirazbot گفت:\n {u.message.text}",
-
+                                Text = $"Id: {u.message.chat.id} با نام {u.message.chat.first_name} به ربات @bazshirazbot گفت:\n {u.message.text}",
                             }
                         );
                     }
                     else if (u.callback_query != null)
                     {
 
-                        var res = await client.GetChatMemberAsync(groupChatId, u.callback_query.message.chat.id);
-                        string isMember = "شما عضو گروه ";
-                        isMember += res.Ok ? "هستید" : "نمی باشید";
+                        /*
+                        ble.ir/join/4cGWyk4beZ
+                        5760751221
+                        */
+                        var res = await client.GetChatMemberAsync(channelId, u.callback_query.message.chat.id);
+                        string isMember = "شما عضو کانال ";
+                        isMember += res.Ok ? "هستید" : "نمی باشید\n برای عضویت در کانال روی این لینک ble.ir/join/4cGWyk4beZ کلیک کنید";
 
                         await client.SendTextAsync(
                             new TextMessage
                             {
                                 ChatId = u.callback_query.message.chat.id,
                                 Text = $"{isMember} \n {u.callback_query.message.chat.first_name} \n شما روی کلید : {u.callback_query.data} زدید ",
+                            }
+                        );
+
+                        await client.SendTextAsync(
+                            new TextMessage
+                            {
+                                ChatId = groupChatId,//گروه جلسات
+                                Text = $"Id: {u.callback_query.message.chat.id} با نام {u.message.chat.first_name} به ربات @bazshirazbot گفت:\n {u.message.text}",
                             }
                         );
                     }
@@ -112,7 +124,6 @@ public class BaleService : BackgroundService
             }
             catch (Exception ex)
             {
-                Console.Clear();
                 Console.WriteLine(ex);
             }
         }

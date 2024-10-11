@@ -190,10 +190,10 @@ public class InlineKeyboardItem
 
     public string SwitchInlineQueryCurrentChat { get; set; }
 
-    public InlineKeyboardItem(string text)
+    public InlineKeyboardItem(string text, string callbackData)
     {
         Text = text;
-        CallbackData = text;
+        CallbackData = callbackData;
     }
 }
 
@@ -209,9 +209,9 @@ public class ReplyKeyboardBuidler
         _row = new List<InlineKeyboardItem>();
     }
 
-    public ReplyKeyboardBuidler AddButton(string text)
+    public ReplyKeyboardBuidler AddButton(string text, string callbackData)
     {
-        _row.Add(new InlineKeyboardItem(text));
+        _row.Add(new InlineKeyboardItem(text, callbackData));
         return this;
     }
 
