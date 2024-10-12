@@ -1,3 +1,5 @@
+//https://docs.bale.ai/
+using System.ComponentModel.DataAnnotations;
 using System.Text;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
@@ -96,7 +98,7 @@ public class BaleMethods
     {
         string url = baseUrl + "sendmessage";
 
-        /*var payload = new
+        /* var payload = new
         {
             message = message
         };
@@ -140,7 +142,7 @@ public class BaleMethods
                         }
                     },
                 resize_keyboard = true,
-                one_time_keyboard = false
+                one_time_keyboard = true
             }
         };
 
@@ -166,8 +168,93 @@ public class BaleMethods
             Console.WriteLine($"Error setting webhook: {ex.Message}");
             return new Response<bool> { Ok = false, Result = false };
         }
-        // return await Post<VoidType>(message, url);
     }
+
+    public async Task<Response> SendTextAsync(sendMessage_InlineKeyboardButton_Parameter payload)
+    {
+        string url = baseUrl + "sendmessage";
+
+        /*var payload = new
+        {
+            chat_id = message.ChatId,
+            text = message.Text,
+            reply_markup = new
+            {
+                keyboard = new[]
+                           {
+                        new[]
+                        {
+                            RequestContact=="null"?null:
+                            new { text = RequestContact, request_contact = true }
+                        }
+                    },
+                resize_keyboard = true,
+                one_time_keyboard = true
+            }
+        };*/
+
+        var content = new StringContent(
+            System.Text.Json.JsonSerializer.Serialize(payload),
+            Encoding.UTF8,
+            "application/json"
+        );
+
+
+        try
+        {
+            var response = await client.PostAsync(url, content);
+            response.EnsureSuccessStatusCode();
+
+            var responseBody = await response.Content.ReadAsStringAsync();
+            var result = JsonConvert.DeserializeObject<Response<RootSendMessage>>(responseBody);
+
+            return result;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error setting webhook: {ex.Message}");
+            return new Response<bool> { Ok = false, Result = false };
+        }
+    }
+
+
+
+
+    /* public async Task<Message> SendInvoiceAsync(
+         string chatId,
+         string title,
+         string description,
+         string payload,
+         string providerToken,
+         LabeledPrice[] prices,
+         string photoUrl = null,
+         int? replyToMessageId = null,
+         InlineKeyboardMarkup replyMarkup = null)
+     {
+         var invoice = new Invoice
+         {
+             Title = title,
+             Description = description,
+             Payload = payload,
+             ProviderToken = providerToken,
+             StartParameter = "create_order",
+             Currency = "RUB", // یا هر ارز دیگری که مورد نظر است
+             Prices = prices,
+         };
+
+         if (!string.IsNullOrEmpty(photoUrl))
+         {
+             using var stream = new MemoryStream(await new HttpClient().GetByteArrayAsync(photoUrl));
+             await _botClient.SendPhotoAsync(chatId, new InputOnlineFile(stream, "invoice.jpg"), invoice);
+         }
+         else
+         {
+             await _botClient.SendInvoiceAsync(chatId, invoice, replyMarkup: replyMarkup, replyToMessageId: replyToMessageId);
+         }
+
+
+     }*/
+
 
 
     public async Task<Response> GetChatMemberAsync(long chatId, long userId)
@@ -354,7 +441,7 @@ public class Response
 {
     public bool Ok { get; set; }
 
-    public int Errorcode { get; set; }
+    public long Errorcode { get; set; }
 
     public string Description { get; set; }
 
@@ -381,12 +468,11 @@ public class VoidType
 }
 
 // Root myDeserializedClass = JsonConvert.DeserializeObject<Root>(myJsonResponse);
-
-
+//https://docs.bale.ai/
 public class CallbackQuery
 {
     public string id { get; set; }
-    public From from { get; set; }
+    public User from { get; set; }
     public Message message { get; set; }
     public string inline_message_id { get; set; }
     public string chat_instance { get; set; }
@@ -395,30 +481,48 @@ public class CallbackQuery
 
 public class Chat
 {
-    public int id { get; set; }
+    public long id { get; set; }
     public string type { get; set; }
     public string username { get; set; }
     public string first_name { get; set; }
     public Photo photo { get; set; }
 }
 
-public class From
+public class User
 {
-    public int id { get; set; }
+    public long id { get; set; }
     public bool is_bot { get; set; }
     public string first_name { get; set; }
     public string last_name { get; set; }
     public string username { get; set; }
 }
 
-public class Message
+/*public class Result_SendMessage
 {
-    public int message_id { get; set; }
-    public From from { get; set; }
-    public int date { get; set; }
+    public long message_id { get; set; }
+    public User from { get; set; }
+    public long date { get; set; }
     public Chat chat { get; set; }
     public string text { get; set; }
+
+}*/
+public class Message
+{
+    public long message_id { get; set; }
+    public User from { get; set; }
+    public long date { get; set; }
+    public Chat chat { get; set; }
+    public User forward_from { get; set; }
+    public Chat forward_from_chat { get; set; }
+    public long forward_from_message_id { get; set; }
+    public long forward_date { get; set; }
+    public Message reply_to_message { get; set; }
+    public long edite_date { get; set; }
+    public string text { get; set; }
     public Contact contact { get; set; }
+    public Location location { get; set; }
+    public Invoice invoice { get; set; }
+    public InlineKeyboardMarkup reply_markup { get; set; }
 }
 
 public class Photo
@@ -431,9 +535,11 @@ public class Photo
 
 public class Result
 {
-    public int update_id { get; set; }
+    public long update_id { get; set; }
     public Message message { get; set; }
+    public Message edited_message { get; set; }
     public CallbackQuery callback_query { get; set; }
+
 }
 
 public class Root
@@ -448,23 +554,24 @@ public class Root
 public class RootSendMessage
 {
     public bool ok { get; set; }
-    public List<ResultSendMessage> result { get; set; }
+    // public List<Result_SendMessage> result { get; set; }
+    public List<Message> result { get; set; }
 }
 public class Contact
 {
     public string phone_number { get; set; }
     public string first_name { get; set; }
-    public int user_id { get; set; }
+    public string last_name { get; set; }
+    public long user_id { get; set; }
 }
-public class ResultSendMessage
-{
-    public int message_id { get; set; }
-    public From from { get; set; }
-    public int date { get; set; }
-    public Chat chat { get; set; }
-    public string text { get; set; }
 
+public class Location
+{
+    public float longitude { get; set; }
+    public float latitude { get; set; }
 }
+
+
 
 public class RootChatMember
 {
@@ -493,13 +600,80 @@ public class ResultChatMember
     public bool can_invite_users { get; set; }
     public bool can_pin_messages { get; set; }
     public bool can_manage_topics { get; set; }
-    public int until_date { get; set; }
+    public long until_date { get; set; }
 }
-public class User
+
+
+public class LabeledPrice
+{//https://core.telegram.org/bots/api#labeledprice
+    public string label { get; set; }
+    public long amount { get; set; }
+}
+public class Invoice
 {
-    public int id { get; set; }
-    public bool is_bot { get; set; }
-    public string first_name { get; set; }
-    public string last_name { get; set; }
-    public string username { get; set; }
+    [Required]
+    public long chat_id { get; set; }
+
+    [Required]
+    public string title { get; set; }
+
+    [Required]
+    public string description { get; set; }
+
+    [Required]
+    public string payload { get; set; }
+
+    [Required]
+    public string provider_token { get; set; }
+
+    [Required]
+    public LabeledPrice prices { get; set; }
+    public string photo_url { get; set; }
+    public long reply_to_message_id { get; set; }
+    public ReplyKeyboard reply_markup { get; set; }
+}
+
+
+public class sendMessage_InlineKeyboardButton_Parameter
+{
+    [Required]
+    public long chat_id { get; set; }
+    [Required]
+    public string text { get; set; }
+    public long reply_to_message_id { get; set; }
+    public InlineKeyboardMarkup reply_markup { get; set; }
+
+}
+
+public class InlineKeyboardMarkup
+{
+    public List<InlineKeyboardButton> keyboard { get; set; }
+}
+public class InlineKeyboardButton
+{
+    public string text { get; set; }
+    public string url { get; set; }
+    public string callback_data { get; set; }
+}
+public class sendMessage_ReplyKeyboardMarkup_Parameter
+{
+    [Required]
+    public long chat_id { get; set; }
+    [Required]
+    public string text { get; set; }
+    public long reply_to_message_id { get; set; }
+    public ReplyKeyboardMarkup reply_markup { get; set; }
+
+}
+public class ReplyKeyboardMarkup
+{
+    public List<KeyboardButton> keyboard { get; set; }
+}
+
+public class KeyboardButton
+{
+    public string text { get; set; }
+    public bool request_contact { get; set; }
+    public bool request_location { get; set; }
+
 }

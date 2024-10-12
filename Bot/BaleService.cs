@@ -100,11 +100,13 @@ public class BaleService : BackgroundService
     {
 
         await client.SendTextAsync(
-                                    new TextMessage
+                                    new sendMessage_InlineKeyboardButton_Parameter
                                     {
-                                        ChatId = logGroupChatId,//گروه جلسات
-                                        Text = $"Id: {u.message.chat.id} با نام {u.message.chat.first_name} به ربات @bazshirazbot گفت:\n {(u.message.contact != null ? u.message.contact.phone_number : u.message.text)}",
+                                        chat_id = logGroupChatId,//گروه جلسات
+                                        text = $"Id: {u.message.chat.id} با نام {u.message.chat.first_name} به ربات @bazshirazbot گفت:\n {(u.message.contact != null ? u.message.contact.phone_number : u.message.text)}",
+
                                     }
+
                                 );
         if (u.message.contact != null)
         {
