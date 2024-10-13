@@ -123,52 +123,53 @@ public class BaleMethods
         }
         // return await Post<VoidType>(message, url);
     }
-    public async Task<Response> SendTextAsync(TextMessage message, string RequestContact)
-    {
-        string url = baseUrl + "sendmessage";
 
-        var payload = new
-        {
-            chat_id = message.ChatId,
-            text = message.Text,
-            reply_markup = new
-            {
-                keyboard = new[]
-                           {
-                        new[]
-                        {
-                            RequestContact=="null"?null:
-                            new { text = RequestContact, request_contact = true }
-                        }
-                    },
-                resize_keyboard = true,
-                one_time_keyboard = true
-            }
-        };
+    /* public async Task<Response> SendTextAsync(TextMessage message, string RequestContact)
+     {
+         string url = baseUrl + "sendmessage";
 
-        var content = new StringContent(
-            System.Text.Json.JsonSerializer.Serialize(payload),
-            Encoding.UTF8,
-            "application/json"
-        );
+         var payload = new
+         {
+             chat_id = message.ChatId,
+             text = message.Text,
+             reply_markup = new
+             {
+                 keyboard = new[]
+                            {
+                         new[]
+                         {
+                             RequestContact=="null"?null:
+                             new { text = RequestContact, request_contact = true }
+                         }
+                     },
+                 resize_keyboard = true,
+                 one_time_keyboard = true
+             }
+         };
+
+         var content = new StringContent(
+             System.Text.Json.JsonSerializer.Serialize(payload),
+             Encoding.UTF8,
+             "application/json"
+         );
 
 
-        try
-        {
-            var response = await client.PostAsync(url, content);
-            response.EnsureSuccessStatusCode();
+         try
+         {
+             var response = await client.PostAsync(url, content);
+             response.EnsureSuccessStatusCode();
 
-            var responseBody = await response.Content.ReadAsStringAsync();
-            var result = JsonConvert.DeserializeObject<Response<RootSendMessage>>(responseBody);
+             var responseBody = await response.Content.ReadAsStringAsync();
+             var result = JsonConvert.DeserializeObject<Response<RootSendMessage>>(responseBody);
 
-            return result;
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"Error setting webhook: {ex.Message}");
-            return new Response<bool> { Ok = false, Result = false };
-        }
-    }
+             return result;
+         }
+         catch (Exception ex)
+         {
+             Console.WriteLine($"Error setting webhook: {ex.Message}");
+             return new Response<bool> { Ok = false, Result = false };
+         }
+     }*/
 
     public async Task<Response> SendTextAsync(sendMessage_InlineKeyboardButton_Parameter payload)
     {
@@ -217,7 +218,34 @@ public class BaleMethods
         }
     }
 
+    public async Task<Response> SendTextAsync(sendMessage_ReplyKeyboardMarkup_Parameter payload)
+    {
+        string url = baseUrl + "sendmessage";
 
+
+        var content = new StringContent(
+            System.Text.Json.JsonSerializer.Serialize(payload),
+            Encoding.UTF8,
+            "application/json"
+        );
+
+
+        try
+        {
+            var response = await client.PostAsync(url, content);
+            response.EnsureSuccessStatusCode();
+
+            var responseBody = await response.Content.ReadAsStringAsync();
+            var result = JsonConvert.DeserializeObject<Response<RootSendMessage>>(responseBody);
+
+            return result;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error setting webhook: {ex.Message}");
+            return new Response<bool> { Ok = false, Result = false };
+        }
+    }
 
 
     /* public async Task<Message> SendInvoiceAsync(
@@ -647,7 +675,7 @@ public class sendMessage_InlineKeyboardButton_Parameter
 
 public class InlineKeyboardMarkup
 {
-   // https://core.telegram.org/bots/api#inlinekeyboardmarkup
+    // https://core.telegram.org/bots/api#inlinekeyboardmarkup
     public InlineKeyboardButton[][] inline_keyboard { get; set; }
 }
 public class InlineKeyboardButton

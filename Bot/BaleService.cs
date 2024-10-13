@@ -18,6 +18,7 @@ public class BaleService : BackgroundService
 
     private readonly string channel_join_link = "ble.ir/join/4cGWyk4beZ";//آدرس عضویت در کانال
     private readonly string EnterButton = "Enter";
+    private readonly string RequestContactButton = "ارسال شماره تماس";
     private static readonly string BackButton = "برگشت";
     BaleMethods client;
     public BaleService(IServiceScopeFactory scopeFactory, IConfiguration configuration)
@@ -133,13 +134,7 @@ public class BaleService : BackgroundService
                                        reply_markup = null
                                    }
                                );
-            /*await client.SendTextAsync(
-                                    new TextMessage
-                                    {
-                                        ChatId = u.message.contact.user_id,
-                                        Text = $"با تشکر شماره شما\n {u.message.contact.phone_number} \n می باشد",
-                                    }
-                           , "null");*/
+
 
             // Clear user state
             userStates.Remove(u.message.chat.id);
@@ -256,54 +251,75 @@ public class BaleService : BackgroundService
     {
         if (msg.contact == null)
         {
+            ReplyKeyboardMarkup RequestContactReplyKeyboardMarkup = new ReplyKeyboardMarkup
+            {
+                keyboard =
+                                                            [ [
+                                                new KeyboardButton { text= RequestContactButton ,request_contact=true},
+
+                                           ],
+                                              ]
+            };
+
+
             await client.SendTextAsync(
-                                    new sendMessage_InlineKeyboardButton_Parameter
+                                    new sendMessage_ReplyKeyboardMarkup_Parameter
                                     {
                                         chat_id = msg.chat.id,
-                                        text = $"{msg.chat.first_name} عزیز\n لطفا برای ارزیابی ورود با موبایل خودتان، فقط بر روی دکمه \n ارسال شماره تماس \n در پایین صفحه کلیک نمایید و از تایپ  یا ارسال آن خودداری فرمایید",
-                                        //reply_markup = BackInlineKeyboardMarkup
-                                    }
-                                );
+                                        text = $"{msg.chat.first_name} عزیز\n لطفا برای ارزیابی ورود با موبایل خودتان، فقط بر روی دکمه \n * {RequestContactButton} * \n در پایین صفحه کلیک نمایید و از تایپ  یا ارسال آن خودداری فرمایید",
+                                        reply_markup = RequestContactReplyKeyboardMarkup
+                                    });
 
-            return;
         }
-        /*
-                ReplyKeyboardMarkup requestBackKeyboard = new ReplyKeyboardMarkup(
 
-                                new[]   {
-                                         new KeyboardButton(BackText),
-                                             })
-                {
-                    ResizeKeyboard = true,
-                    OneTimeKeyboard = true,
-                };
+        /*await client.SendTextAsync(
+                                new sendMessage_InlineKeyboardButton_Parameter
+                                {
+                                    chat_id = msg.chat.id,
+                                    text = $"{msg.chat.first_name} عزیز\n لطفا برای ارزیابی ورود با موبایل خودتان، فقط بر روی دکمه \n * {RequestContactButton} * \n در پایین صفحه کلیک نمایید و از تایپ  یا ارسال آن خودداری فرمایید",
+                                    //reply_markup = BackInlineKeyboardMarkup
+                                }
+                            );*/
 
-                // Clear user state
-                userStates.Remove(msg.Chat.Id);
-
-                var phoneNumber = msg.Contact.PhoneNumber;
-                userPhones[msg.Chat.Id] = phoneNumber;
-
-                var response = await CheckByNumberAsync(phoneNumber);
-                if (response.Success)
-                {
-                    await bot.SendTextMessageAsync(
-                        chatId: msg.Chat.Id,
-                        text: response.Message
-                          , replyMarkup: requestBackKeyboard
-                    );
-
-                    //set userStates
-                    userStates[msg.Chat.Id] = "ExpectingNationalCode";
-                }
-                else
-                {
-                    await bot.SendTextMessageAsync(
-                       chatId: msg.Chat.Id,
-                       text: response.Message
-                   );
-                }*/
+        return;
     }
+    /*
+            ReplyKeyboardMarkup requestBackKeyboard = new ReplyKeyboardMarkup(
+
+                            new[]   {
+                                     new KeyboardButton(BackText),
+                                         })
+            {
+                ResizeKeyboard = true,
+                OneTimeKeyboard = true,
+            };
+
+            // Clear user state
+            userStates.Remove(msg.Chat.Id);
+
+            var phoneNumber = msg.Contact.PhoneNumber;
+            userPhones[msg.Chat.Id] = phoneNumber;
+
+            var response = await CheckByNumberAsync(phoneNumber);
+            if (response.Success)
+            {
+                await bot.SendTextMessageAsync(
+                    chatId: msg.Chat.Id,
+                    text: response.Message
+                      , replyMarkup: requestBackKeyboard
+                );
+
+                //set userStates
+                userStates[msg.Chat.Id] = "ExpectingNationalCode";
+            }
+            else
+            {
+                await bot.SendTextMessageAsync(
+                   chatId: msg.Chat.Id,
+                   text: response.Message
+               );
+            }
+}*/
 
 
 
@@ -324,13 +340,25 @@ public class BaleService : BackgroundService
             userStates[u.callback_query.message.chat.id] = "ExpectingMobile";
 
 
+            ReplyKeyboardMarkup RequestContactReplyKeyboardMarkup = new ReplyKeyboardMarkup
+            {
+                keyboard =
+                                                            [ [
+                                                new KeyboardButton { text= RequestContactButton ,request_contact=true},
+
+                                           ],
+                                              ]
+            };
+
+
             await client.SendTextAsync(
-               new TextMessage
-               {
-                   ChatId = u.callback_query.message.chat.id,
-                   Text = $"سلام {u.callback_query.message.chat.first_name}! \n لطفا برای احراز هویت شماره خود را با کلیک روی دکمه ارسال تماس در اختیار ما قرار دهید ",
-               }, "ارسال شماره تماس"
-           );
+                                    new sendMessage_ReplyKeyboardMarkup_Parameter
+                                    {
+                                        chat_id = u.callback_query.message.chat.id,
+                                        text = $"سلام {u.callback_query.message.chat.first_name}! \n لطفا برای احراز هویت شماره خود را با کلیک روی دکمه * {RequestContactButton} * در اختیار ما قرار دهید ",
+                                        reply_markup = RequestContactReplyKeyboardMarkup
+                                    });
+
         }
 
 
