@@ -121,16 +121,42 @@ public class BaleService : BackgroundService
             return;
         }
 
-        ReplyKeyboardBuidler replyKeyboardBuidler = new ReplyKeyboardBuidler();
-        replyKeyboardBuidler.AddButton("ورود به ربات/بازو پیشکسوتان شیراز", EnterButton);
-        await client.SendTextAsync(
-            new TextMessage
-            {
-                ChatId = u.message.chat.id,
-                Text = $" {u.message.chat.first_name} شما گفتید:\n {u.message.text}",
-                ReplyMarkup = replyKeyboardBuidler.Build(),
-            }
-        );
+        if (u.message.text == "/start")
+        {
+
+            await client.SendTextAsync(
+                                   new sendMessage_InlineKeyboardButton_Parameter
+                                   {
+                                       chat_id = u.message.chat.id,
+                                       text = $" {u.message.chat.first_name} شما گفتید:\n {u.message.text}",
+                                       reply_markup = new InlineKeyboardMarkup
+                                       {
+                                           inline_keyboard =
+                                           [ [
+                                                new InlineKeyboardButton { text= "ورود به ربات یا بازوی پیشکسوتان شیراز" ,callback_data=EnterButton},
+                                                new InlineKeyboardButton { text= "تست" ,callback_data=EnterButton},
+                                           ],[
+                                                    new InlineKeyboardButton { text= "وفعالیت ها" ,callback_data=EnterButton},
+
+                                           ]
+                                       ]
+                                       }
+
+                                   }
+
+                               );
+
+            /* ReplyKeyboardBuidler replyKeyboardBuidler = new ReplyKeyboardBuidler();
+             replyKeyboardBuidler.AddButton("ورود به ربات/بازو پیشکسوتان شیراز", EnterButton);
+             await client.SendTextAsync(
+                 new TextMessage
+                 {
+                     ChatId = u.message.chat.id,
+                     Text = $" {u.message.chat.first_name} شما گفتید:\n {u.message.text}",
+                     ReplyMarkup = replyKeyboardBuidler.Build(),
+                 }
+             );*/
+        }
     }
     async Task HandleCallbackQuery(Result u)
     {

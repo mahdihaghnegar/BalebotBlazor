@@ -647,7 +647,7 @@ public class sendMessage_InlineKeyboardButton_Parameter
 
 public class InlineKeyboardMarkup
 {
-    public List<InlineKeyboardButton> keyboard { get; set; }
+    public InlineKeyboardButton[][] inline_keyboard { get; set; }
 }
 public class InlineKeyboardButton
 {
@@ -667,7 +667,7 @@ public class sendMessage_ReplyKeyboardMarkup_Parameter
 }
 public class ReplyKeyboardMarkup
 {
-    public List<KeyboardButton> keyboard { get; set; }
+    public KeyboardButton[][] keyboard { get; set; }
 }
 
 public class KeyboardButton
