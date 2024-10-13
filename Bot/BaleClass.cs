@@ -647,6 +647,7 @@ public class sendMessage_InlineKeyboardButton_Parameter
 
 public class InlineKeyboardMarkup
 {
+   // https://core.telegram.org/bots/api#inlinekeyboardmarkup
     public InlineKeyboardButton[][] inline_keyboard { get; set; }
 }
 public class InlineKeyboardButton

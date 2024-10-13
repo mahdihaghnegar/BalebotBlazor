@@ -15,6 +15,8 @@ public class BaleService : BackgroundService
     private readonly IConfiguration Configuration;
     long logGroupChatId = 5684598897;//گروه جلسات
     long channelId = 5760751221;//کانال 
+
+    string channel_join_link = "ble.ir/join/4cGWyk4beZ";//آدرس عضویت در کانال
     string EnterButton = "Enter";
     BaleMethods client;
     public BaleService(IServiceScopeFactory scopeFactory, IConfiguration configuration)
@@ -134,9 +136,10 @@ public class BaleService : BackgroundService
                                            inline_keyboard =
                                            [ [
                                                 new InlineKeyboardButton { text= "ورود به ربات یا بازوی پیشکسوتان شیراز" ,callback_data=EnterButton},
-                                                new InlineKeyboardButton { text= "تست" ,callback_data=EnterButton},
+
                                            ],[
-                                                    new InlineKeyboardButton { text= "وفعالیت ها" ,callback_data=EnterButton},
+                                             new InlineKeyboardButton { text= "عضویت در کانال" ,url=channel_join_link},
+                                                  new InlineKeyboardButton { text= "وبسایت" ,url="https://farsrms.ir/"}
 
                                            ]
                                        ]
@@ -172,7 +175,7 @@ public class BaleService : BackgroundService
 
         var res = await client.GetChatMemberAsync(channelId, u.callback_query.message.chat.id);
         string isMember = "شما عضو کانال ";
-        isMember += res.Ok ? "هستید" : "نمی باشید\n برای عضویت در کانال روی این لینک ble.ir/join/4cGWyk4beZ کلیک کنید";
+        isMember += res.Ok ? "هستید" : $"نمی باشید\n برای عضویت در کانال روی این لینک {channel_join_link} کلیک کنید";
 
 
         if (!res.Ok)
