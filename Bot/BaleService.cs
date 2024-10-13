@@ -13,11 +13,12 @@ public class BaleService : BackgroundService
 
     private readonly IServiceScopeFactory ScopeFactory;
     private readonly IConfiguration Configuration;
-    long logGroupChatId = 5684598897;//گروه جلسات
-    long channelId = 5760751221;//کانال 
+    private readonly long logGroupChatId = 5684598897;//گروه جلسات
+    private readonly long channelId = 5760751221;//کانال 
 
-    string channel_join_link = "ble.ir/join/4cGWyk4beZ";//آدرس عضویت در کانال
-    string EnterButton = "Enter";
+    private readonly string channel_join_link = "ble.ir/join/4cGWyk4beZ";//آدرس عضویت در کانال
+    private readonly string EnterButton = "Enter";
+    private static readonly string BackButton = "برگشت";
     BaleMethods client;
     public BaleService(IServiceScopeFactory scopeFactory, IConfiguration configuration)
     {
@@ -53,10 +54,17 @@ public class BaleService : BackgroundService
                 {
                     if (u.message != null)
                     {
+                        //check if chat_id is Channel Member
+                        await isChannelMember(u.message.chat.id, u.message.chat.first_name);
+
                         await HandleMessage(u);
                     }
                     else if (u.callback_query != null)
                     {
+
+                        //check if chat_id is Channel Member
+                        await isChannelMember(u.callback_query.message.chat.id, u.callback_query.message.chat.first_name);
+
                         await HandleCallbackQuery(u);
                     }
                 }
@@ -98,6 +106,9 @@ public class BaleService : BackgroundService
 
         return true;
     }
+
+
+
     async Task HandleMessage(Result u)
     {
 
@@ -106,64 +117,198 @@ public class BaleService : BackgroundService
                                     {
                                         chat_id = logGroupChatId,//گروه جلسات
                                         text = $"Id: {u.message.chat.id} با نام {u.message.chat.first_name} به ربات @bazshirazbot گفت:\n {(u.message.contact != null ? u.message.contact.phone_number : u.message.text)}",
-
                                     }
-
                                 );
+
+
+
         if (u.message.contact != null)
         {
+
             await client.SendTextAsync(
+                                   new sendMessage_ReplyKeyboardMarkup_Parameter
+                                   {
+                                       chat_id = u.message.contact.user_id,
+                                       text = $"با تشکر شماره شما\n {u.message.contact.phone_number} \n می باشد",
+                                       reply_markup = null
+                                   }
+                               );
+            /*await client.SendTextAsync(
                                     new TextMessage
                                     {
                                         ChatId = u.message.contact.user_id,
                                         Text = $"با تشکر شماره شما\n {u.message.contact.phone_number} \n می باشد",
                                     }
-                           , "null");
+                           , "null");*/
+
+            // Clear user state
+            userStates.Remove(u.message.chat.id);
 
             return;
         }
 
-        if (u.message.text == "/start")
+        InlineKeyboardMarkup StartInlineKeyboardMarkup = new InlineKeyboardMarkup
         {
+            inline_keyboard =
+                                                  [ [
+                                                new InlineKeyboardButton { text= "ورود به ربات یا بازوی پیشکسوتان شیراز" ,callback_data=EnterButton},
+
+                                           ],[
+                                             new InlineKeyboardButton { text= "عضویت در کانال" ,url=channel_join_link},
+                                                  new InlineKeyboardButton { text= "وبسایت" ,url="https://farsrms.ir/"},
+
+                                           ]
+                                              ]
+        };
+
+        InlineKeyboardMarkup BackInlineKeyboardMarkup = new InlineKeyboardMarkup
+        {
+            inline_keyboard =
+                                                 [ [
+                                                new InlineKeyboardButton { text= BackButton ,callback_data=BackButton},
+
+                                           ],
+                                              ]
+        };
+
+        if (u.message.text == BackButton)
+        {
+            // Clear user state
+            userStates.Remove(u.message.chat.id);
 
             await client.SendTextAsync(
                                    new sendMessage_InlineKeyboardButton_Parameter
                                    {
                                        chat_id = u.message.chat.id,
-                                       text = $" {u.message.chat.first_name} شما گفتید:\n {u.message.text}",
-                                       reply_markup = new InlineKeyboardMarkup
-                                       {
-                                           inline_keyboard =
-                                           [ [
-                                                new InlineKeyboardButton { text= "ورود به ربات یا بازوی پیشکسوتان شیراز" ,callback_data=EnterButton},
-
-                                           ],[
-                                             new InlineKeyboardButton { text= "عضویت در کانال" ,url=channel_join_link},
-                                                  new InlineKeyboardButton { text= "وبسایت" ,url="https://farsrms.ir/"}
-
-                                           ]
-                                       ]
-                                       }
-
+                                       text = "خوش برگشتید! لطفا روی یک دکمه کلیک کنید!",
+                                       reply_markup = StartInlineKeyboardMarkup
                                    }
-
+                               );
+        }
+        else if (u.message.text == "/start" || u.message.text == "start" || u.message.text == "salam" || u.message.text == "/شروع" || u.message.text == "شروع" || u.message.text == "/سلام" || u.message.text == "سلام")
+        {
+            await client.SendTextAsync(
+                                   new sendMessage_InlineKeyboardButton_Parameter
+                                   {
+                                       chat_id = u.message.chat.id,
+                                       text = "  با سلام و احترام \n" + "به ربات ما خوش آمدید! لطفا روی یک دکمه کلیک کنید!",// $" {u.message.chat.first_name} شما گفتید:\n {u.message.text}",
+                                       reply_markup = StartInlineKeyboardMarkup
+                                   }
                                );
 
-            /* ReplyKeyboardBuidler replyKeyboardBuidler = new ReplyKeyboardBuidler();
-             replyKeyboardBuidler.AddButton("ورود به ربات/بازو پیشکسوتان شیراز", EnterButton);
-             await client.SendTextAsync(
-                 new TextMessage
-                 {
-                     ChatId = u.message.chat.id,
-                     Text = $" {u.message.chat.first_name} شما گفتید:\n {u.message.text}",
-                     ReplyMarkup = replyKeyboardBuidler.Build(),
-                 }
-             );*/
+        }
+        else if (userStates.ContainsKey(u.message.chat.id))
+        {
+            await userStatesSolver(u.message);
+        }
+        else if (u.message.text != null)
+        {
+            await client.SendTextAsync(
+                                     new sendMessage_InlineKeyboardButton_Parameter
+                                     {
+                                         chat_id = u.message.chat.id,
+                                         text = "لطفا روی کلیدی کلیک نمایید",
+                                         reply_markup = BackInlineKeyboardMarkup
+                                     }
+                                 );
+        }
+        else if (u.message.text is null) return;
+    }
+    async Task userStatesSolver(Message msg)
+    {
+        if (userStates[msg.chat.id] == "ExpectingNationalCode")
+        {
+            await ExpectingNationalCode(msg);
+        }
+        else if (userStates[msg.chat.id] == "ExpectingMobile")
+        {
+            await ExpectingMobile(msg);
         }
     }
+
+    async Task ExpectingNationalCode(Message msg)
+    {
+        /*if (msg.text == null || !msg.text.IsValidIranianNationalCode())
+        {
+            await bot.SendTextMessageAsync(
+            chatId: msg.Chat.Id,
+            text: $"کد ملی نادرست می باشد. لطفا مجددا تلاش نمایید");
+            return;
+        }
+
+        var nationalCode = msg.Text;
+        var response = await GetNameByCodemeliAsync(long.Parse(nationalCode), userPhones[msg.Chat.Id]);
+
+        await bot.SendTextMessageAsync(
+            chatId: msg.Chat.Id,
+            text: response.Message
+        );
+
+        if (response.Success)
+        {
+            //set userStates
+            userStates[msg.Chat.Id] = "NEXT";
+
+        }*/
+    }
+
+    async Task ExpectingMobile(Message msg)
+    {
+        if (msg.contact == null)
+        {
+            await client.SendTextAsync(
+                                    new sendMessage_InlineKeyboardButton_Parameter
+                                    {
+                                        chat_id = msg.chat.id,
+                                        text = $"{msg.chat.first_name} عزیز\n لطفا برای ارزیابی ورود با موبایل خودتان، فقط بر روی دکمه \n ارسال شماره تماس \n در پایین صفحه کلیک نمایید و از تایپ  یا ارسال آن خودداری فرمایید",
+                                        //reply_markup = BackInlineKeyboardMarkup
+                                    }
+                                );
+
+            return;
+        }
+        /*
+                ReplyKeyboardMarkup requestBackKeyboard = new ReplyKeyboardMarkup(
+
+                                new[]   {
+                                         new KeyboardButton(BackText),
+                                             })
+                {
+                    ResizeKeyboard = true,
+                    OneTimeKeyboard = true,
+                };
+
+                // Clear user state
+                userStates.Remove(msg.Chat.Id);
+
+                var phoneNumber = msg.Contact.PhoneNumber;
+                userPhones[msg.Chat.Id] = phoneNumber;
+
+                var response = await CheckByNumberAsync(phoneNumber);
+                if (response.Success)
+                {
+                    await bot.SendTextMessageAsync(
+                        chatId: msg.Chat.Id,
+                        text: response.Message
+                          , replyMarkup: requestBackKeyboard
+                    );
+
+                    //set userStates
+                    userStates[msg.Chat.Id] = "ExpectingNationalCode";
+                }
+                else
+                {
+                    await bot.SendTextMessageAsync(
+                       chatId: msg.Chat.Id,
+                       text: response.Message
+                   );
+                }*/
+    }
+
+
+
     async Task HandleCallbackQuery(Result u)
     {
-
         await client.SendTextAsync(
             new TextMessage
             {
@@ -171,27 +316,14 @@ public class BaleService : BackgroundService
                 Text = $"Id: {u.callback_query.message.chat.id} با نام {u.callback_query.message.chat.first_name} در ربات @bazshirazbot روی دکمه: {u.callback_query.data} زد",
             }
         );
-        //*******************
-
-        var res = await client.GetChatMemberAsync(channelId, u.callback_query.message.chat.id);
-        string isMember = "شما عضو کانال ";
-        isMember += res.Ok ? "هستید" : $"نمی باشید\n برای عضویت در کانال روی این لینک {channel_join_link} کلیک کنید";
 
 
-        if (!res.Ok)
-        {
-            await client.SendTextAsync(
-                new TextMessage
-                {
-                    ChatId = u.callback_query.message.chat.id,
-                    Text = $"{isMember} \n {u.callback_query.message.chat.first_name} ",
-                }
-            );
-            return;
-        }
 
         if (u.callback_query.data == EnterButton)
-        {
+        {    //set userStates
+            userStates[u.callback_query.message.chat.id] = "ExpectingMobile";
+
+
             await client.SendTextAsync(
                new TextMessage
                {
@@ -202,5 +334,33 @@ public class BaleService : BackgroundService
         }
 
 
+    }
+
+    async Task<bool> isChannelMember(long chat_id, string first_name)
+    {
+        var res = await client.GetChatMemberAsync(channelId, chat_id// u.callback_query.message.chat.id
+        );
+        string isMember = "شما عضو کانال ";
+        isMember += res.Ok ? "هستید" : $"نمی باشید\n لطفا ! \n برای عضویت در کانال، دکمه  * عضویت در کانال  * را بزنید";
+
+        if (!res.Ok)
+        {
+            await client.SendTextAsync(
+                 new sendMessage_InlineKeyboardButton_Parameter
+                 {
+                     chat_id = chat_id,
+                     text = $" {first_name} گرامی! \n {isMember}   ",
+                     reply_markup = new InlineKeyboardMarkup
+                     {
+                         inline_keyboard =
+                                           [ [
+                                             new InlineKeyboardButton { text= "عضویت در کانال" ,url=channel_join_link},
+                                           ]
+                                       ]
+                     }
+                 }
+            );
+        }
+        return res.Ok;
     }
 }
