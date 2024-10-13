@@ -247,6 +247,35 @@ public class BaleMethods
         }
     }
 
+    public async Task<Response> SendInvoiceAsync(Invoice payload)
+    {
+        string url = baseUrl + "sendmessage";
+
+
+        var content = new StringContent(
+            System.Text.Json.JsonSerializer.Serialize(payload),
+            Encoding.UTF8,
+            "application/json"
+        );
+
+
+        try
+        {
+            var response = await client.PostAsync(url, content);
+            response.EnsureSuccessStatusCode();
+
+            var responseBody = await response.Content.ReadAsStringAsync();
+            var result = JsonConvert.DeserializeObject<Response<RootSendMessage>>(responseBody);
+
+            return result;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error setting webhook: {ex.Message}");
+            return new Response<bool> { Ok = false, Result = false };
+        }
+    }
+
 
     /* public async Task<Message> SendInvoiceAsync(
          string chatId,
@@ -655,7 +684,7 @@ public class Invoice
     public string provider_token { get; set; }
 
     [Required]
-    public LabeledPrice prices { get; set; }
+    public LabeledPrice[] prices { get; set; }
     public string photo_url { get; set; }
     public long reply_to_message_id { get; set; }
     public ReplyKeyboard reply_markup { get; set; }

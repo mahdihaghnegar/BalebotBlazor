@@ -18,6 +18,8 @@ public class BaleService : BackgroundService
 
     private readonly string channel_join_link = "ble.ir/join/4cGWyk4beZ";//آدرس عضویت در کانال
     private readonly string EnterButton = "Enter";
+
+    private readonly string InvoiceButton = "Invoice";
     private readonly string RequestContactButton = "ارسال شماره تماس";
     private static readonly string BackButton = "برگشت";
     BaleMethods client;
@@ -151,6 +153,8 @@ public class BaleService : BackgroundService
                                            ],[
                                              new InlineKeyboardButton { text= "عضویت در کانال" ,url=channel_join_link},
                                                   new InlineKeyboardButton { text= "وبسایت" ,url="https://farsrms.ir/"},
+                                           ],[
+                                            new InlineKeyboardButton { text= "صورت حساب" ,callback_data=InvoiceButton},
 
                                            ]
                                               ]
@@ -360,16 +364,38 @@ public class BaleService : BackgroundService
                                     });
 
         }
+        else if (u.callback_query.data == InvoiceButton)
+        {
+            await client.SendInvoiceAsync(
+                new Invoice
+                {
+                    chat_id = u.callback_query.message.chat.id,
+                    title = "نام محصول : تست محصول",
+                    description = "این توضیحات محصول برای تست فروش از بله می باشد",
+                    payload = "1286059",
+                    provider_token = "6037997218284124",
+                    prices =
+                    [
+                        new LabeledPrice{ label="برنامه نوسی", amount=300000},
+                        new LabeledPrice{ label="پیاده سازی", amount=200000},
+                    ],
+                }
+            );
+
+        }
 
 
     }
 
     async Task<bool> isChannelMember(long chat_id, string first_name)
     {
+        if (chat_id == logGroupChatId) return true;
+        if (chat_id == channelId) return true;
+        
         var res = await client.GetChatMemberAsync(channelId, chat_id// u.callback_query.message.chat.id
         );
         string isMember = "شما عضو کانال ";
-        isMember += res.Ok ? "هستید" : $"نمی باشید\n لطفا ! \n برای عضویت در کانال، دکمه  * عضویت در کانال  * را بزنید";
+        isMember += res.Ok ? "هستید" : $"نمی باشید\n لطفا ! \n برای عضویت در کانال، دکمه  * عضویت در کانال  * را بزنید\n {channel_join_link}";
 
         if (!res.Ok)
         {
