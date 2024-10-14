@@ -249,7 +249,7 @@ public class BaleMethods
 
     public async Task<Response> SendInvoiceAsync(Invoice payload)
     {
-        string url = baseUrl + "sendmessage";
+        string url = baseUrl + "sendInvoice";
 
 
         var content = new StringContent(
