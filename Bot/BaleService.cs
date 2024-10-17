@@ -23,10 +23,13 @@ public class BaleService : BackgroundService
     private readonly string RequestContactButton = "ارسال شماره تماس";
     private static readonly string BackButton = "برگشت";
     BaleMethods client;
-    public BaleService(IServiceScopeFactory scopeFactory, IConfiguration configuration)
+    private readonly ILogger<BaleService> Logger;
+    public BaleService(IServiceScopeFactory scopeFactory, IConfiguration configuration, ILogger<BaleService> logger)
     {
         ScopeFactory = scopeFactory;
         Configuration = configuration;
+        Logger = logger;
+
         _apiToken = Configuration["BaleBot:ApiToken"];
         _HOST = Configuration["BaleBot:HOST"];
         url = $"https://tapi.bale.ai/bot{_apiToken}/";
@@ -35,75 +38,88 @@ public class BaleService : BackgroundService
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        await ExecuteBotAsync(stoppingToken);
-    }
-    async Task ExecuteBotAsync(CancellationToken stoppingToken)
-    {
         bool start = await StartBot();
         if (!start) return;
-
-        while (start)
+        // Your background task logic here
+        Logger.LogInformation("BaleService running at: {time}", DateTimeOffset.Now);
+        while (start && !stoppingToken.IsCancellationRequested)
         {
             try
             {
-                var Updates = await client.GetUpdatesAsync();
-                if (Updates == null || !Updates.ok || Updates.result.Count == 0)
-                {
-                    await Task.Delay(2000);
-                    continue;
-                }
-
-                foreach (var u in Updates.result)
-                {
-                    if (u.message != null)
-                    {
-                        //check if chat_id is Channel Member
-                        await isChannelMember(u.message.chat.id, u.message.chat.first_name);
-
-                        await HandleMessage(u);
-                    }
-                    else if (u.callback_query != null)
-                    {
-
-                        //check if chat_id is Channel Member
-                        await isChannelMember(u.callback_query.message.chat.id, u.callback_query.message.chat.first_name);
-
-                        await HandleCallbackQuery(u);
-                    }
-                }
-
-                await Task.Delay(1000);
+                await ExecuteBotAsync(stoppingToken);
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex);
+                Logger.LogError(ex, "BaleService An error occurred.");
+                // Optionally, add some delay to avoid rapid restarts
+                await Task.Delay(5000, stoppingToken);
             }
         }
+    }
+
+
+    async Task ExecuteBotAsync(CancellationToken stoppingToken)
+    {
+        try
+        {
+            var Updates = await client.GetUpdatesAsync();
+            if (Updates == null || !Updates.ok || Updates.result.Count == 0)
+            {
+                await Task.Delay(2000);
+                return;
+            }
+
+            foreach (var u in Updates.result)
+            {
+                if (u.message != null)
+                {
+                    //check if chat_id is Channel Member
+                    await isChannelMember(u.message.chat.id, u.message.chat.first_name);
+
+                    await HandleMessage(u);
+                }
+                else if (u.callback_query != null)
+                {
+
+                    //check if chat_id is Channel Member
+                    await isChannelMember(u.callback_query.message.chat.id, u.callback_query.message.chat.first_name);
+
+                    await HandleCallbackQuery(u);
+                }
+            }
+
+            await Task.Delay(1000);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex);
+        }
+
     }
 
     async Task<bool> StartBot()
     {
-        Console.WriteLine($"Host: {_HOST}\n Token: {_apiToken}");
+        Logger.LogInformation($"Host: {_HOST}\n Token: {_apiToken}");
 
         var response = await client.DeleteWebHook();
         if (response.Ok && response.Result)
         {
-            Console.WriteLine("Webhook deleted successfully!");
+            Logger.LogInformation("Webhook deleted successfully!");
         }
         else
         {
-            Console.WriteLine("Failed to delete webhook.");
+            Logger.LogError("Failed to delete webhook.");
             return false;
         }
 
         response = await client.SetWebhookAsync(_HOST);
         if (response.Ok && response.Result)
         {
-            Console.WriteLine("Webhook set successfully!");
+            Logger.LogInformation("Webhook set successfully!");
         }
         else
         {
-            Console.WriteLine("Failed to set webhook.");
+            Logger.LogError("Failed to set webhook.");
             return false;
         }
 
@@ -391,7 +407,7 @@ public class BaleService : BackgroundService
     {
         if (chat_id == logGroupChatId) return true;
         if (chat_id == channelId) return true;
-        
+
         var res = await client.GetChatMemberAsync(channelId, chat_id// u.callback_query.message.chat.id
         );
         string isMember = "شما عضو کانال ";
